@@ -14,11 +14,22 @@ const runApp = async () => {
   }
   
   const chainName = args.c.toUpperCase();
+  let fileExtension = "json"
 
   if(!args.c || !EvmChain[chainName]) {
     console.log("missed chain or wrong chain")
     return;
   } 
+
+  if(!args.f) {
+    console.log("default output extension is json")
+    fileExtension = "json"
+  } else if(args.f !== "json" && args.f !== "csv") {
+    console.log("wrong output extension")
+    return;
+  } else {
+    fileExtension = args.f
+  }
 
   const address = args.a // contract address
   const chain = EvmChain[chainName];
@@ -84,10 +95,12 @@ const runApp = async () => {
     })
   }
 
-  fs.writeFileSync("./NFTHolderInfo.json", JSON.stringify(detailData));
-
-  const csv = await jsonConverter.json2csv(detailData, { expandArrayObjects : true, unwindArrays : true})
-  fs.writeFileSync('./detail.csv', csv)
+  if(fileExtension === "json") {
+    fs.writeFileSync("./NFTContractInfo.json", JSON.stringify(detailData));
+  } else if(fileExtension === "csv") {
+    const csv = await jsonConverter.json2csv(detailData, { expandArrayObjects : true, unwindArrays : true})
+    fs.writeFileSync('./NFTContractInfo.csv', csv)
+  }
 };
 
 runApp();
